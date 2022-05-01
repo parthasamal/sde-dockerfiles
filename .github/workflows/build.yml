@@ -1,0 +1,32 @@
+# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+#
+# You can adjust the behavior by modifying this file.
+# For more information, see:
+# https://github.com/actions/stale
+name: Mark pull requests and run the pipeline to create image, verify image and push it to repository.
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build-and-push-image:
+    name: Build image with version
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Include the paths
+          with:
+          add-paths: |
+            common/app/*
+      - team-reviewers: |
+            owners
+            maintainers
+      - name: run the buld
+        run:  |
+          docker_version=`cat version.yaml`
+          docker build -t docker_image:$docker_version .
